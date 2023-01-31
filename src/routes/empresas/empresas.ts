@@ -1,6 +1,16 @@
 import express from 'express';
 const router = express.Router();
+import { Empresas } from '@libs/Empresas/empresas';
 
+const empresaModel = new Empresas();
+
+empresaModel.add({
+    codigo: '',
+    nombre: "Empresa 1",
+    status: "Activo",
+    created: new Date(),
+    updated: new Date()
+});
 //registrar los endpoints en los routers
 router.get('/', (_req, res) => {
     const jsonUrls = {
@@ -29,15 +39,14 @@ router.get('/', (_req, res) => {
 });
 
 router.get('/all', (_req, res) => {
-    res.status(200).json({
-        msg:'Not implemented yet'
-    });
+    res.status(200).json(empresaModel.getAll());
 });
 
 // 200 recuros encontrado todo bien,
 // 202 recurso creado sin cuerpo
 // 302 recurso encontrado pero redireccionado
-// 401 no autorizado
+// 303 304 utilice el cache
+// 401 no esta permitido el acceso
 // 403 autorización negada
 // 500 error interno del servidor
 

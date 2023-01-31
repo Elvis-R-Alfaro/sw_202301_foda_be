@@ -12,6 +12,8 @@ const router  = express.Router();
 // CRUD Create, Read, Update, Delete
 // HTTP   POST,  GET,   PUT,   DELETE
 
+import empresasRouter from './empresas/empresas';
+
 router.get('/', (_req, res) => {
   res.json({msg:'Hello World!'});
 });
@@ -25,5 +27,7 @@ router.get('/version', (_req, res) =>{
   // string, number, boolean, types, interfaces, classes, enumerators
   res.json(jsonResp);
 });
+
+router.use('/empresas', empresasRouter);
 
 export default router;

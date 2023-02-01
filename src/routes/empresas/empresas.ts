@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import { Empresas } from '@libs/Empresas/empresas';
+import { Empresas, IEmpresas } from '@libs/Empresas/empresas';
 
 const empresaModel = new Empresas();
 
@@ -8,8 +8,6 @@ empresaModel.add({
     codigo: '',
     nombre: "Empresa 1",
     status: "Activo",
-    created: new Date(),
-    updated: new Date()
 });
 //registrar los endpoints en los routers
 router.get('/', (_req, res) => {
@@ -40,6 +38,49 @@ router.get('/', (_req, res) => {
 
 router.get('/all', (_req, res) => {
     res.status(200).json(empresaModel.getAll());
+});
+
+router.post('/new', (req, res) => {
+    console.log("Empresas / new request body: ", req.body);
+    const {
+        nombre = 'John Doe Corp', 
+        status = 'Activo'
+    } = req.body;
+    const newEmpresa : IEmpresas = {
+        codigo: '',
+        nombre,
+        status,
+    };
+    if (empresaModel.add(newEmpresa)){
+        res.status(200).json({"created": true});
+    }
+    return res.status(404).json({"error": "Error al agregar una nueva empresa"});
+});
+
+router.put('/upd/:id', (req, res) => {
+    const { id } = req.params;
+    const { 
+        nombre = 'John Doe Corp', 
+        status = 'Activo', 
+        observacion = '', 
+    } = req.body;
+
+    const updateEmpresa : IEmpresas = {
+        codigo: id,
+        nombre,
+        status,
+        observacion
+    };
+
+    if(empresaModel.update(updateEmpresa)){
+        return res
+            .status(200)
+            .json({"updated": true});
+    }
+    
+    return res
+        .status(404)
+        .json({"error": "Error al actualizar la empresa"});
 });
 
 // 200 recuros encontrado todo bien,

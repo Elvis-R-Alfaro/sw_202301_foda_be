@@ -1,5 +1,6 @@
 //la interface es una estructura que define un tipo de dato
 //definición de una interface por eso usamos ; al final
+//ENDPOINT Ruta de una interface que reacciona en una identidad
 export interface IEmpresas{
     codigo: string;
     nombre: string;
@@ -27,6 +28,17 @@ export class Empresas {
         this.empresas = [];
     }
 
+    getAll(){
+        return this.empresas;
+    }
+
+    getById(codigo: string){
+        const empresa = this.empresas.find((emp)=>{
+            return emp.codigo === codigo;
+        });
+        return empresa;
+    }
+
     add(nuevaEmpresa : IEmpresas){
         const date = new Date();
         const nueva: IEmpresas = {
@@ -39,10 +51,6 @@ export class Empresas {
         return true;
     }
 
-    getAll(){
-        return this.empresas;
-    }
-
     update(updateEmpresa: IEmpresas){
         const newEmpresas: IEmpresas[] = this.empresas.map((emp)=>{
             if(emp.codigo === updateEmpresa.codigo){
@@ -52,5 +60,20 @@ export class Empresas {
         });
         this.empresas = newEmpresas;
         return true;
+    }
+
+    delete(codigo: string){
+        const empresaToDelete = this.empresas.find((emp)=>{
+            return emp.codigo === codigo;
+        });
+
+        if(empresaToDelete){
+            const newEmpresas : IEmpresas[] = this.empresas.filter((emp)=>{
+                return emp.codigo !== codigo;
+            });
+            this.empresas = newEmpresas;
+            return true;
+        }
+        return false;
     }
 }

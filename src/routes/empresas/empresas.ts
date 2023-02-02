@@ -40,6 +40,15 @@ router.get('/all', (_req, res) => {
     res.status(200).json(empresaModel.getAll());
 });
 
+router.get('/byid/:id', (req, res) => {
+    const { id: codigo } = req.params;
+    const empresa = empresaModel.getById(codigo);
+    if(empresa){
+        return res.status(200).json(empresa);
+    }
+    return res.status(404).json({"error": "No se encontró la empresa"});
+});
+
 router.post('/new', (req, res) => {
     console.log("Empresas / new request body: ", req.body);
     const {
@@ -81,6 +90,18 @@ router.put('/upd/:id', (req, res) => {
     return res
         .status(404)
         .json({"error": "Error al actualizar la empresa"});
+});
+
+router.delete('/del/:id', (req, res) => {
+    const { id : codigo } = req.params; //asignar el valor de id a codigo
+    if(empresaModel.delete(codigo)){
+        return res
+            .status(200)
+            .json({"deleted": true});
+    }
+    return res
+        .status(404)
+        .json({"error": "Error al eliminar la empresa"});
 });
 
 // 200 recuros encontrado todo bien,

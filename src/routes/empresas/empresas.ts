@@ -1,14 +1,18 @@
 import express from 'express';
 const router = express.Router();
-import { Empresas, IEmpresas } from '@libs/Empresas/empresas';
 
-const empresaModel = new Empresas();
+import { EmpresasDao } from '@dao/models/Empresas/EmpresasDao';
+import { MongoDBConn } from '@dao/MongoDBConn';
+import { Empresas } from '@libs/Empresas/empresas';
+import { IEmpresas } from '@server/dao/models/Empresas/IEmpresas';
 
-empresaModel.add({
-    codigo: '',
-    nombre: "Empresa 1",
-    status: "Activo",
+const empresasDao = new EmpresasDao(MongoDBConn);
+let empresaModel:Empresas;
+
+empresasDao.init().then(()=>{
+  empresaModel = new Empresas(empresasDao);
 });
+
 //registrar los endpoints en los routers
 router.get('/', (_req, res) => {
     const jsonUrls = {
@@ -36,20 +40,20 @@ router.get('/', (_req, res) => {
     res.status(200).json(jsonUrls);
 });
 
-router.get('/all', (_req, res) => {
-    res.status(200).json(empresaModel.getAll());
+router.get('/all', async (_req, res) => {
+    res.status(200).json(await empresaModel.getAll());
 });
 
-router.get('/byid/:id', (req, res) => {
+router.get('/byid/:id', async (req, res) => {
     const { id: codigo } = req.params;
-    const empresa = empresaModel.getById(codigo);
+    const empresa = await empresaModel.getById(codigo);
     if(empresa){
         return res.status(200).json(empresa);
     }
     return res.status(404).json({"error": "No se encontró la empresa"});
 });
 
-router.post('/new', (req, res) => {
+router.post('/new', async (req, res) => {
     console.log("Empresas / new request body: ", req.body);
     const {
         nombre = 'John Doe Corp', 
@@ -60,18 +64,18 @@ router.post('/new', (req, res) => {
         nombre,
         status,
     };
-    if (empresaModel.add(newEmpresa)){
+    if (await empresaModel.add(newEmpresa)){
         res.status(200).json({"created": true});
     }
     return res.status(404).json({"error": "Error al agregar una nueva empresa"});
 });
 
-router.put('/upd/:id', (req, res) => {
+router.put('/upd/:id', async (req, res) => {
     const { id } = req.params;
     const { 
         nombre = 'John Doe Corp', 
         status = 'Activo', 
-        observacion = '', 
+        observacion = '',
     } = req.body;
 
     const updateEmpresa : IEmpresas = {
@@ -81,7 +85,7 @@ router.put('/upd/:id', (req, res) => {
         observacion
     };
 
-    if(empresaModel.update(updateEmpresa)){
+    if(await empresaModel.update(id, updateEmpresa)){
         return res
             .status(200)
             .json({"updated": true});
@@ -92,9 +96,9 @@ router.put('/upd/:id', (req, res) => {
         .json({"error": "Error al actualizar la empresa"});
 });
 
-router.delete('/del/:id', (req, res) => {
+router.delete('/del/:id', async (req, res) => {
     const { id : codigo } = req.params; //asignar el valor de id a codigo
-    if(empresaModel.delete(codigo)){
+    if(await empresaModel.delete(codigo)){
         return res
             .status(200)
             .json({"deleted": true});
